@@ -10,6 +10,15 @@ const upload=multer({dest:'image/'})
 const fs=require('fs')
 
 
+router.get('/car-info/:id',(request,response)=>{
+    const {id}=request.params
+    const statement=`select * from cars where id=${id}`
+    console.log(`()()()()() id=${id}`)
+    db.connection.query(statement,(error,data)=>{
+    response.send(utils.createResult(error,data))
+     })
+})
+
 
 router.get('/',(request,response)=>{
     // const {userId}=request.params

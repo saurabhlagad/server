@@ -10,7 +10,6 @@ const upload=multer({dest:'image/'})
 const fs=require('fs')
 
 
-
 router.get('/',(request,response)=>{
     // const {userId}=request.params
     const token=request.headers['token']
