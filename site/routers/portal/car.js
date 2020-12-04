@@ -10,6 +10,15 @@ const upload=multer({dest:'image/'})
 const fs=require('fs')
 
 
+router.get('/car-info/:id',(request,response)=>{
+    const {id}=request.params
+    const statement=`select * from cars where id=${id}`
+    console.log(`()()()()() id=${id}`)
+    db.connection.query(statement,(error,data)=>{
+    response.send(utils.createResult(error,data))
+     })
+})
+
 
 router.get('/',(request,response)=>{
     // const {userId}=request.params
@@ -37,7 +46,7 @@ router.get('/image/:filename',(request,response)=>{
     console.log(`dirname:${__dirname} and filename:${filename}`)
     //const data=fs.readFile('/images'+filename)
     //const path=__dirname+`/../../image/ ${filename}`
-    const path=`C:/Users/hp/Desktop/carRental/server/image/${filename}`
+    const path=`C:/Users/hp/server/site/image/${filename}`
     console.log('*********************')
     console.log(`path:${path}`)
     console.log('*********************')

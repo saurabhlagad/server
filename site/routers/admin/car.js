@@ -10,7 +10,6 @@ const upload=multer({dest:'image/'})
 const fs=require('fs')
 
 
-
 router.get('/',(request,response)=>{
     // const {userId}=request.params
     const token=request.headers['token']
@@ -37,7 +36,7 @@ router.get('/image/:filename',(request,response)=>{
     console.log(`dirname:${__dirname} and filename:${filename}`)
     //const data=fs.readFile('/images'+filename)
     //const path=__dirname+`/../../image/ ${filename}`
-    const path=`C:/Users/hp/Desktop/carRental/server/image/${filename}`
+    const path=`C:/Users/hp/server/site/image/${filename}`
     console.log('*********************')
     console.log(`path:${path}`)
     console.log('*********************')

@@ -12,7 +12,7 @@ const transport=mailer.createTransport({
 
 transport.sendMail({
     from:'noreply@myevernote.com',
-    to:'abhisheka.thombare07@gmail.com',
+    to:email,
     subject:subject,
     html:body
 
