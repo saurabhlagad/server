@@ -13,7 +13,7 @@ const jwt=require('jsonwebtoken')
 const config=require('./config')
 const cors=require('cors')
 const morgan=require('morgan')
-
+const feedbackRouter=require('./routers/portal/feedback')
 
 function authorizeUser(request,response,next){
     const token=request.headers.token
@@ -59,7 +59,7 @@ app.use('/bookedcar',bookedCarRouter)
 //app.use('/category',categoryRouter)
 //app.use('/orders',orderRouter)
 app.use('/car',carRouter)
-
+app.use('/feedback',feedbackRouter)
 app.get('/',(request,response)=>{
     response.send('<h1>welcome to mystore</h1>')
 })
@@ -67,3 +67,5 @@ app.get('/',(request,response)=>{
 app.listen(4100,'0.0.0.0',()=>{
     console.log('server started running at port 4100')
 })
+
+
