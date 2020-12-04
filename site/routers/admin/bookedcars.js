@@ -30,6 +30,7 @@ router.get('/search/:text',(request,response)=>{
                     inner join cars on bookedcar.carId=cars.id
                     inner join user on bookedcar.userId=user.id
                     where cars.carName like '%${text}%' or user.firstName like '%${text}%' or user.lastName like '%${text}%'
+                    order by id desc
                     `
                     db.connection.query(statement,(error,data)=>{
                         response.send(utils.createResult(error,data))
