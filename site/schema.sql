@@ -1,5 +1,5 @@
-create database car_rental;
-use car_rental;
+create database carrental;
+use carrental;
 create table user(id integer primary key auto_increment,firstname varchar(20),lastname varchar(20),email varchar(30),password varchar(100),phone varchar(20),status integer default 0,created_on timestamp default CURRENT_TIMESTAMP,activationToken varchar(100));
 create table admin(id integer primary key auto_increment,firstname varchar(20),lastname varchar(20),email varchar(30),password varchar(100),phone varchar(20),created_on timestamp default CURRENT_TIMESTAMP);
 create table cars(id integer primary key auto_increment,carName varchar(20),noOfSeats integer,plateNo varchar(20),pricePerHour float,model varchar(30),image varchar(100),description varchar(100),transmission varchar(100),fuel varchar(20),isAvailable integer default 1,created_on timestamp default CURRENT_TIMESTAMP);
