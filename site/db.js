@@ -1,10 +1,10 @@
 const mysql=require('mysql2')
 const pool=mysql.createPool({
     host:'localhost',
-    port:3309,
+    port:3306,
     user:'root',
-    password:'@Aniket270320',
-    database:'car_rental_sy',
+    password:'abhith@1234',
+    database:'car_rental',
     connectionLimit:20,
     waitForConnections:true,
     queueLimit:0
