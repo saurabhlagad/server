@@ -11,6 +11,8 @@ const mailer=require('../../mailer')
 const jwt=require('jsonwebtoken')
 const config=require('../../config')
 const utils=require('../../utils')
+const multer=require('multer')
+const upload=multer({dest:'image/'})
 
 router.post('/signup',(request,response)=>{
     
@@ -99,19 +101,44 @@ router.get('/activate/:token',(request,response)=>{
 })
 
 
-// router.get('/profile/',(request,response)=>{
-//     // const {id}=request.params
-//     const token=request.headers['token']
-//     const data=jwt.verify(token,config.secret)
-//     // try{
-//     const statement=`select id,name,email,phone,address from user where id='${data.id}'`
-//     db.connection.query(statement,(error,data)=>{
-//         response.send(utils.createResult(error,data))
-//     })
-//     // }catch(ex){
-//     //     response.status(401)
-//     //     response.send(utils.createResult('Invalid token'))
-//     // }
-// })
+
+//
+ router.get('/profile',(request,response)=>{
+     const {id}=request.userId
+    const token=request.headers['token']
+    const data=jwt.verify(token,config.secret)
+     //try{
+    const statement=`select id,firstname,lastname,email,phone,Address,image from user where id='${data.id}'`
+    db.connection.query(statement,(error,data)=>{
+        response.send(utils.createResult(error,data))
+    })
+    // }catch(ex){
+    //     response.status(401)
+    //     response.send(utils.createResult('Invalid token'))
+    // }
+})
+
+router.get('/image/:filename',(request,response)=>{
+    const {filename}=request.params
+
+    console.log(`dirname:${__dirname} and filename:${filename}`)
+    //const data=fs.readFile('/images'+filename)
+    //const path=__dirname+`/../../image/ ${filename}`
+    const path=`C:/Users/Vaishnavi/server/site/image/${filename}`
+    console.log('*********************')
+    console.log(`path:${path}`)
+    console.log('*********************')
+    const data=fs.readFileSync(path)
+    response.send(data)
+})
+
+router.put('/editprofile',upload.single('image'),(request,response)=>{
+    const {phone,Address}=request.body
+    const image=request.file.filename
+     const statement=`update user set phone=${phone},Address=${Address},image=${image} where id=${request.userId}`
+     db.connection.query(statement,(error,data)=>{
+        response.send(utils.createResult(error,data))
+    })
+    })
 
 module.exports=router
