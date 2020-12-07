@@ -9,6 +9,65 @@ const multer=require('multer')
 const upload=multer({dest:'image/'})
 const fs=require('fs')
 
+
+//select distinct(year(created_on)) from bookedcar;
+//select distinct(month(created_on)) from bookedcar where year(created_on)=2020;
+//select * from bookedcar where year(created_on)=2020 and month(created_on)=11;
+
+router.get('/yearreport',(request,response)=>{
+    const statement=`select distinct(year(created_on)) as year from bookedcar`
+    db.connection.query(statement,(error,data)=>{
+        response.send(utils.createResult(error,data))
+    })
+})
+
+router.get('/monthreport/:year',(request,response)=>{
+    const {year}=request.params
+    const statement=`select distinct(month(created_on)) as month from bookedcar where year(created_on)=${year}`
+    db.connection.query(statement,(error,data)=>{
+        response.send(utils.createResult(error,data))
+    })
+})
+
+// select bookedcar.*,cars.carName as carName,cars.plateNo as plateNo,cars.pricePerHour as pricePerHour,
+//                     cars.image as carImage,user.firstname as userFirstName,user.lastname as userLastName,user.phone as userPhone 
+//                     from bookedcar
+//                     inner join cars on bookedcar.carId=cars.id
+//                     inner join user on bookedcar.userId=user.id
+//                     where year(bookedcar.created_on)=2020 and month(bookedcar.created_on)=11 
+router.post('/monthlyreport',(request,response)=>{
+    const {year,month}=request.body
+    let yearClause=''
+    let monthClause=''
+    let whereClause=''
+    if(year==0)
+    {
+        whereClause=''
+    }
+    else{
+        yearClause=`year(bookedcar.created_on)=${year}`
+        if(month==0)
+        {
+            whereClause=` where `+yearClause
+
+        }
+        else{
+            monthClause=`month(bookedcar.created_on)=${month}`
+            whereClause=` where `+yearClause + ` and ` + monthClause
+        }
+    }
+    const statement=`select bookedcar.*,cars.carName as carName,cars.plateNo as plateNo,cars.pricePerHour as pricePerHour,
+                    cars.image as carImage,user.firstname as userFirstName,user.lastname as userLastName,user.phone as userPhone 
+                    from bookedcar
+                    inner join cars on bookedcar.carId=cars.id
+                    inner join user on bookedcar.userId=user.id
+                    ${whereClause}`
+
+                    db.connection.query(statement,(error,data)=>{
+                        response.send(utils.createResult(error,data))
+                    })
+})
+
 router.get('/',(request,response)=>{
     const statement=`select bookedcar.*,cars.carName as carName,cars.plateNo as plateNo,cars.pricePerHour as pricePerHour,
                      cars.image as carImage,user.firstname as userFirstName,user.lastname as userLastName,user.phone as userPhone 
