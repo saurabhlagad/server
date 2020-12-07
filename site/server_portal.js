@@ -21,6 +21,7 @@ function authorizeUser(request,response,next){
         (request.url=='/user/signin' || request.url=='/') ||
         (request.url.startsWith('/car/image')) ||
         (request.url=='/user/signup') ||
+       // (request.url=='/user/profile') ||
         (request.url.startsWith('/user/activate')) ||
         (request.url.startsWith('/car/search/')) ||
         (request.url.startsWith('/bookedcar/image')) ||
