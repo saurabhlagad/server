@@ -1,7 +1,7 @@
 const mysql=require('mysql2')
 const pool=mysql.createPool({
     host:'localhost',
-    port:3309,
+    port:3306,
     user:'root',
     password:'Vaishnavi@2020',
     database:'car_rental_system',
