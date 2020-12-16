@@ -13,6 +13,76 @@ const config=require('../../config')
 const utils=require('../../utils')
 const multer=require('multer')
 const upload=multer({dest:'image/'})
+//const multer=require('multer')
+//const upload=multer({dest:'image/'})
+const fs=require('fs')
+
+
+
+router.post('/faq',(request,response)=>{
+    const {name,email,password,subject,message}=request.body
+    console.log(`${name} ${email} ${password} ${subject} ${message}`)
+    const statement=`select * from user where email='${email}'`
+    let result={}
+    let status=''
+    db.connection.query(statement,(error,users)=>{
+        if(error)
+        {
+            result.status='error'
+            result.error=error
+            console.log(`error`)
+        }
+        else{
+            if(users.length==0)
+            {
+                status='inactive'
+                console.log(`inactive`)
+            }
+            else{
+                const user=users[0]
+                if(user.status==1)
+                {
+                    status='active'
+                    console.log(`active`)
+                    result.status='success'
+                    result.data='Please check mail box'
+                }
+                else if(user.status==0){
+                    status='inactive'
+                    console.log(`inactive`)
+                }
+                else if(user.status==2){
+                    status='Suspended'
+                    console.log(`suspended`)
+                }
+            }
+            const mailSubject=`<h1>${subject}</h1>`
+            const body=`<h4>${message} <br> status=${status}</h4>`
+            const statement1=`insert into faq(name,email,subject,message,status) values('${name}','${email}','${subject}','${message}','${status}')`
+            db.connection.query(statement1,(error,data)=>{
+                mailer.sendEmailToAdmin(email+'',password+'',mailSubject+'',body,
+                    (mailError,mailResult)=>{
+                        if(mailError){
+                            result.status='error'
+                            result.error=mailError
+                            console.log(mailError)
+                            response.send(result)
+                        }
+                        else{
+                            result.status='success'
+                            result.data=mailResult
+                            response.send(result)
+                        }
+                    
+                    console.log('success111')
+                })
+                
+                //response.send(utils.createResult(error,data))
+            })
+        }
+    })
+
+})
 
 router.post('/signup',(request,response)=>{
     
@@ -35,7 +105,7 @@ router.post('/signup',(request,response)=>{
 
 router.post('/signin',(request,response)=>{
     const{email,password}=request.body
-    const statement=`select id,firstname,lastname,phone,status from user where email='${email}' and password='${crypto.SHA256(password)}'`
+    const statement=`select id,firstname,lastname,phone,status,email from user where email='${email}' and password='${crypto.SHA256(password)}'`
     const result={}
     db.connection.query(statement,(error,users)=>{
         if(error)
@@ -66,7 +136,9 @@ router.post('/signin',(request,response)=>{
                         firstname:user.firstname,
                         lastname:user.lastname,
                         phone:user.phone,
-                        authToken:authToken
+                        authToken:authToken,
+                        email:user.email,
+                        drivingLisence:user.drivingLisence
                     }
                 }
                 else if(user.status==2)
@@ -124,7 +196,7 @@ router.get('/image/:filename',(request,response)=>{
     console.log(`dirname:${__dirname} and filename:${filename}`)
     //const data=fs.readFile('/images'+filename)
     //const path=__dirname+`/../../image/ ${filename}`
-    const path=`C:/Users/Vaishnavi/server/site/image/${filename}`
+    const path=`C:/Users/hp/server/site/image/${filename}`
     console.log('*********************')
     console.log(`path:${path}`)
     console.log('*********************')
@@ -132,13 +204,22 @@ router.get('/image/:filename',(request,response)=>{
     response.send(data)
 })
 
-router.put('/editprofile',upload.single('image'),(request,response)=>{
+router.put('/profile',upload.single('image'),(request,response)=>{
     const {phone,Address}=request.body
     const image=request.file.filename
-     const statement=`update user set phone=${phone},Address=${Address},image=${image} where id=${request.userId}`
+     const statement=`update user set phone='${phone}',Address='${Address}',image='${image}' where id=${request.userId}`
      db.connection.query(statement,(error,data)=>{
         response.send(utils.createResult(error,data))
     })
     })
+
+    router.put('/profile/withoutimage',(request,response)=>{
+        const {phone,Address}=request.body
+        //const image=request.file.filename
+         const statement=`update user set phone='${phone}',Address='${Address}' where id=${request.userId}`
+         db.connection.query(statement,(error,data)=>{
+            response.send(utils.createResult(error,data))
+        })
+        })
 
 module.exports=router
