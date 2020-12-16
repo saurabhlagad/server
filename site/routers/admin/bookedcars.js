@@ -8,6 +8,8 @@ const config=require('../../config')
 const multer=require('multer')
 const upload=multer({dest:'image/'})
 const fs=require('fs')
+const mailer=require('../../mailer')
+const { dirname } = require('path')
 
 
 //select distinct(year(created_on)) from bookedcar;
@@ -29,6 +31,13 @@ router.get('/monthreport/:year',(request,response)=>{
     })
 })
 
+router.get('/carreport',(request,response)=>{
+    const statement=`select * from cars`
+    db.connection.query(statement,(error,data)=>{
+        response.send(utils.createResult(error,data))
+    })
+})
+
 // select bookedcar.*,cars.carName as carName,cars.plateNo as plateNo,cars.pricePerHour as pricePerHour,
 //                     cars.image as carImage,user.firstname as userFirstName,user.lastname as userLastName,user.phone as userPhone 
 //                     from bookedcar
@@ -36,32 +45,61 @@ router.get('/monthreport/:year',(request,response)=>{
 //                     inner join user on bookedcar.userId=user.id
 //                     where year(bookedcar.created_on)=2020 and month(bookedcar.created_on)=11 
 router.post('/monthlyreport',(request,response)=>{
-    const {year,month}=request.body
+    const {year,month,carId}=request.body
     let yearClause=''
     let monthClause=''
+    let carClause=''
     let whereClause=''
     if(year==0)
     {
         whereClause=''
+        if(carId==0)
+        {
+            carClause='' 
+            whereClause=''
+        }
+        else{
+            carClause=`carId=${carId}`
+            whereClause=`where ${carClause}`
+        }
     }
     else{
         yearClause=`year(bookedcar.created_on)=${year}`
         if(month==0)
         {
-            whereClause=` where `+yearClause
+            //whereClause=` where `+yearClause
+            if(carId==0)
+            {
+                carClause='' 
+                whereClause=`where ${yearClause}`
+            }
+            else{
+                carClause=`carId=${carId}`
+                whereClause=`where ${carClause} and ${yearClause}`
+            }
 
         }
         else{
             monthClause=`month(bookedcar.created_on)=${month}`
-            whereClause=` where `+yearClause + ` and ` + monthClause
+            
+            if(carId==0)
+            {
+                carClause='' 
+                whereClause=` where `+yearClause + ` and ` + monthClause
+            }
+            else{
+                carClause=`carId=${carId}`
+                whereClause=`where ${carClause} and ${yearClause} and ${monthClause}`
+            }
         }
     }
+    
     const statement=`select bookedcar.*,cars.carName as carName,cars.plateNo as plateNo,cars.pricePerHour as pricePerHour,
                     cars.image as carImage,user.firstname as userFirstName,user.lastname as userLastName,user.phone as userPhone 
                     from bookedcar
                     inner join cars on bookedcar.carId=cars.id
                     inner join user on bookedcar.userId=user.id
-                    ${whereClause}`
+                    ${whereClause} order by id desc`
 
                     db.connection.query(statement,(error,data)=>{
                         response.send(utils.createResult(error,data))
@@ -70,7 +108,8 @@ router.post('/monthlyreport',(request,response)=>{
 
 router.get('/',(request,response)=>{
     const statement=`select bookedcar.*,cars.carName as carName,cars.plateNo as plateNo,cars.pricePerHour as pricePerHour,
-                     cars.image as carImage,user.firstname as userFirstName,user.lastname as userLastName,user.phone as userPhone 
+                     cars.image as carImage,user.firstname as userFirstName,user.lastname as userLastName,user.phone as userPhone,
+                     user.email as userEmail 
                      from bookedcar
                      inner join cars on bookedcar.carId=cars.id
                      inner join user on bookedcar.userId=user.id
@@ -127,8 +166,8 @@ router.post('/filter',(request,response)=>{
 router.get('/image/:filename',(request,response)=>{
     const {filename}=request.params
 
-    console.log(`dirname:${__dirname} and filename:${filename}`)
-    const path=`C:/Users/Vaishnavi/server/site/image/${filename}`
+    console.log(`dirname:${__dirname} and filename:${filename} and imageFOlderPAth=${dirname}`)
+    const path=`C:/Users/hp/server/site/image/${filename}`
     console.log('*********************')
     console.log(`path:${path}`)
     console.log('*********************')
@@ -155,9 +194,30 @@ router.put('/confirm/:id',(request,response)=>{
 
 router.put('/returned/:id',(request,response)=>{
     const {id}=request.params
-    const statement=`update bookedcar set isReturned=1 where id=${id}`
+    const {totalRent,returnOn,rideDuration,bookingTime,userEmail,pricePerHour,carName}=request.body
+    const pricePerMin=pricePerHour/60
+    const body=`
+        <h1> We have got our ${carName} back.Here is your car rent<br>
+      <h2>Total Min= ${rideDuration} </h2> <br>
+      <h2>From Date= ${bookingTime} </h2> <br>
+      <h2>Return Date= ${returnOn} </h2> <br>
+      <h2>Price/Hour= Rs. ${pricePerHour} </h2> <br>
+      <h2>Total Bill= Total Min * Price/Min <br > <h2 style="margin-left:80px;"> = ${rideDuration} * ${pricePerMin} </h2> </h2>
+      <h2>Total Bill= Rs. ${totalRent} </h2>`
+
+
+      mailer.sendEmail(userEmail,`Journey's total Bill`,body,
+        (mailError,mailResult)=>{
+            response.send(utils.createResult(error,result))
+            console.log('success111')
+        }
+        )
+
+
+    const statement=`update bookedcar set isReturned=1,returnOn='${returnOn}',totalRent='${totalRent}',rideDuration='${rideDuration}' where id=${id}`
     db.connection.query(statement,(error,data)=>{
         response.send(utils.createResult(error,data))
+        
     })
 })
 
@@ -184,5 +244,10 @@ router.delete('/:id',(request,response)=>{
         response.send(utils.createResult(error,data))
     })
 })
+
+// router.get('/rent/:id',(request,response)=>{
+//     const {id}=request.params
+//     const statement=``
+// })
 
 module.exports=router

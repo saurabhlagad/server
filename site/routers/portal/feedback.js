@@ -14,7 +14,7 @@ const fs=require('fs')
 // to show the feedback
 router.get('/:id',(request,response)=>{
     const {id}=request.params
-    const statement=`select feedback.*,user.firstname as userFirstname,user.lastname as userLastname from feedback inner join user on feedback.userId=user.id where carId=${id}`
+    const statement=`select feedback.*,user.firstname as userFirstname,user.lastname as userLastname,user.image as userImage from feedback inner join user on feedback.userId=user.id where carId=${id}`
     console.log(`()()()()() id=${id}`)
     db.connection.query(statement,(error,data)=>{
     response.send(utils.createResult(error,data))

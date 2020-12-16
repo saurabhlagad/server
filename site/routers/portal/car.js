@@ -46,7 +46,7 @@ router.get('/image/:filename',(request,response)=>{
     console.log(`dirname:${__dirname} and filename:${filename}`)
     //const data=fs.readFile('/images'+filename)
     //const path=__dirname+`/../../image/ ${filename}`
-    const path=`C:/Users/Vaishnavi/server/site/image/${filename}`
+    const path=`C:/Users/hp/server/site/image/${filename}`
     console.log('*********************')
     console.log(`path:${path}`)
     console.log('*********************')

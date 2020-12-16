@@ -29,7 +29,8 @@ router.get('/image/:filename',(request,response)=>{
     const {filename}=request.params
 
     console.log(`dirname:${__dirname} and filename:${filename}`)
-    const path=`C:/Users/Vaishnavi/server/site/image/${filename}`
+    
+    const path=`C:/Users/hp/server/site/image/${filename}`
     console.log('*********************')
     console.log(`path:${path}`)
     console.log('*********************')
@@ -41,23 +42,78 @@ router.post('/',upload.single('image'),(request,response)=>{
     console.log(request.file)
     const drivingLicence=request.file.filename
     
-    const {carId,toDate,toTime,fromDate,fromTime,destination}=request.body
+    const {carId,toDate,toTime,fromDate,fromTime,destination,startingPoint}=request.body
    
     console.log(`image file:${drivingLicence} `)
-    const statement=`insert into bookedcar(userId,carId,toDate,toTime,fromDate,fromTime,drivingLicence,destination) 
-    values(${request.userId},${carId},'${toDate}','${toTime}','${fromDate}','${fromTime}','${drivingLicence}','${destination}')`
+    const statement=`insert into bookedcar(userId,carId,toDate,toTime,fromDate,fromTime,drivingLicence,destination,pickPoint) 
+    values(${request.userId},${carId},'${toDate}','${toTime}','${fromDate}','${fromTime}','${drivingLicence}','${destination}','${startingPoint}')`
 
     db.connection.query(statement,(error,data)=>{
+        // const statement1=`update user set drivingLisence='${drivingLicence}' where id=${request.userId}`
+        // db.connection.query(statement1,(error,data)=>{
+        //     response.send(utils.createResult(error,data))
+        // })
         response.send(utils.createResult(error,data))
     })
 })
 
+// router.post('/withoutLisence',(request,response)=>{
+//     const {carId,toDate,toTime,fromDate,fromTime,destination,startingPoint}=request.body
+//     const statement=`insert into bookedcar(userId,carId,toDate,toTime,fromDate,fromTime,destination,pickPoint) 
+//     values(${request.userId},${carId},'${toDate}','${toTime}','${fromDate}','${fromTime}','${destination}','${startingPoint}')`
+
+//     db.connection.query(statement,(error,data)=>{
+//         response.send(utils.createResult(error,data))
+//     })
+// })
 
 router.delete('/:id',(request,response)=>{
     const {id}=request.params
-    const statement=`delete from bookedcar where id=${id}`
+    const statement=`select * from bookedcar where id=${id}`
+    let result={}
+    
     db.connection.query(statement,(error,data)=>{
-        response.send(utils.createResult(error,data))
+        let bookingDate=data[0].fromDate+'T'+data[0].fromTime
+        let currentDate=new Date()
+        var msec = Math.abs( currentDate.getTime() - new Date(`${bookingDate}`).getTime() );
+        const min = Math.floor((msec/1000)/60);
+
+        const isReturned=data[0].isReturned
+        console.log(`isReturned=${isReturned}`)
+        //console.log(`data['isReturned']=${data['isReturned']} and jsData=${jsData.isReturned} `)
+        
+        if((currentDate.getTime() < new Date(`${bookingDate}`).getTime()) && isReturned==2)
+        {
+            console.log(`in 1st if statement`)
+            const statement1=`delete from bookedcar where id=${id}`
+            db.connection.query(statement1,(error,data)=>{
+                 result=utils.createResult(error,data)
+            })
+        }
+        else if(!(currentDate.getTime() < new Date(`${bookingDate}`).getTime()) && isReturned==2)
+        {
+            console.log(`in 2nd if statement`)
+            const statement1=`delete from bookedcar where id=${id}`
+            db.connection.query(statement1,(error,data)=>{
+                 result=utils.createResult(error,data)
+            })
+        }
+        else if((currentDate.getTime() < new Date(`${bookingDate}`).getTime()) && isReturned!=2)
+        {
+            console.log(`in 3rd if statement`)
+            const statement1=`delete from bookedcar where id=${id}`
+            db.connection.query(statement1,(error,data)=>{
+                 result=utils.createResult(error,data)
+            })
+        }
+        else
+        {
+            console.log(`in else statement`)
+            result.status='error'
+            result.error=`Cancellation of booking failed.Current time is way beyond booking date and time.`
+        }
+
+        response.send(result)
     })
 })
 
