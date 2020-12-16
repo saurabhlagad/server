@@ -81,4 +81,34 @@ router.get('/bookcar-count',(request,response)=>{
     // }
 })
 
+router.get('/Feedback-count',(request,response)=>{
+    // const {id}=request.params
+    const token=request.headers['token']
+    const data=jwt.verify(token,config.secret)
+    // try{
+    const statement=`select count(*) as Feedback_count from Feedback `
+    db.connection.query(statement,(error,data)=>{
+        response.send(utils.createResult(error,data))
+    })
+    // }catch(ex){
+    //     response.status(401)
+    //     response.send(utils.createResult('Invalid token'))
+    // }
+})
+
+router.get('/FAQ-count',(request,response)=>{
+    // const {id}=request.params
+    const token=request.headers['token']
+    const data=jwt.verify(token,config.secret)
+    // try{
+    const statement=`select count(*) as FAQ_count from faq `
+    db.connection.query(statement,(error,data)=>{
+        response.send(utils.createResult(error,data))
+    })
+    // }catch(ex){
+    //     response.status(401)
+    //     response.send(utils.createResult('Invalid token'))
+    // }
+})
+
 module.exports=router
