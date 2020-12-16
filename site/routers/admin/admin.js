@@ -1,5 +1,5 @@
 const { request, response } = require("express");
-
+const utils=require('../../utils')
 const express=require('express')
 const router=express.Router()
 const db=require('../../db')
@@ -52,19 +52,33 @@ router.post('/login',(request,response)=>{
     })
 })
 
-// router.get('/profile/',(request,response)=>{
-//     // const {id}=request.params
-//     const token=request.headers['token']
-//     const data=jwt.verify(token,config.secret)
-//     // try{
-//     const statement=`select id,name,email,phone,address from user where id='${data.id}'`
-//     db.connection.query(statement,(error,data)=>{
-//         response.send(utils.createResult(error,data))
-//     })
-//     // }catch(ex){
-//     //     response.status(401)
-//     //     response.send(utils.createResult('Invalid token'))
-//     // }
-// })
+router.get('/user-count',(request,response)=>{
+    // const {id}=request.params
+    const token=request.headers['token']
+    const data=jwt.verify(token,config.secret)
+    // try{
+    const statement=`select count(*) as user_count from user `
+    db.connection.query(statement,(error,data)=>{
+        response.send(utils.createResult(error,data))
+    })
+    // }catch(ex){
+    //     response.status(401)
+    //     response.send(utils.createResult('Invalid token'))
+    // }
+})
+router.get('/bookcar-count',(request,response)=>{
+    // const {id}=request.params
+    const token=request.headers['token']
+    const data=jwt.verify(token,config.secret)
+    // try{
+    const statement=`select count(*) as bookcar_count from bookedcar `
+    db.connection.query(statement,(error,data)=>{
+        response.send(utils.createResult(error,data))
+    })
+    // }catch(ex){
+    //     response.status(401)
+    //     response.send(utils.createResult('Invalid token'))
+    // }
+})
 
 module.exports=router
