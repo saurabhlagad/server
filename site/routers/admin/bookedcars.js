@@ -167,7 +167,7 @@ router.get('/image/:filename',(request,response)=>{
     const {filename}=request.params
 
     console.log(`dirname:${__dirname} and filename:${filename} and imageFOlderPAth=${dirname}`)
-    const path=`C:/Users/vaishnavi/server/site/image/${filename}`
+    const path=`C:/Users/hp/server/site/image/${filename}`
     console.log('*********************')
     console.log(`path:${path}`)
     console.log('*********************')
