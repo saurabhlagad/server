@@ -4,7 +4,7 @@ const pool=mysql.createPool({
     port:3306,
     user:'root',
     password:'abhith@1234',
-    database:'car_rental',
+    database:'car_rental_system',
     connectionLimit:20,
     waitForConnections:true,
     queueLimit:0
